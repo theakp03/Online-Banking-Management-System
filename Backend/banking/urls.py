@@ -10,4 +10,8 @@ urlpatterns = [
     path("api/loans/", include("loans.urls")),
     path("api/loans/", include("loans.urls")),
     path("api/payments/", include("payments.urls")),
+    path(
+        "api/administration/",
+        include("administration.urls")
+    ),
 ]
