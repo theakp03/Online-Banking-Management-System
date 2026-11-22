@@ -9,6 +9,9 @@ from accounts.models import Account
 from .models import Transaction
 from .serializers import TransferSerializer
 
+from django.db.models import Q
+from .serializers import TransactionHistorySerializer
+
 
 class FundTransferView(APIView):
 
@@ -127,3 +130,32 @@ class FundTransferView(APIView):
                 {"error": "Transfer failed. Please try again."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+
+class TransactionHistoryView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        # Get transactions where the user sent or received money
+        transactions = Transaction.objects.filter(
+            Q(sender__user=request.user) |
+            Q(receiver__user=request.user)
+        ).select_related(
+            "sender", "receiver"
+        ).order_by("-created_at")
+
+        serializer = TransactionHistorySerializer(
+            transactions,
+            many=True
+        )
+
+        return Response(
+            {
+                "count": transactions.count(),
+                "transactions": serializer.data
+            },
+            status=status.HTTP_200_OK
+        )

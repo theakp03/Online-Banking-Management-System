@@ -1,6 +1,7 @@
 
 from rest_framework import serializers
 from accounts.models import Account
+from .models import Transaction
 
 
 class TransferSerializer(serializers.Serializer):
@@ -85,3 +86,33 @@ class TransferSerializer(serializers.Serializer):
         attrs["receiver"] = receiver
 
         return attrs
+
+
+
+
+class TransactionHistorySerializer(serializers.ModelSerializer):
+
+    sender_account_number = serializers.CharField(
+        source="sender.account_number",
+        read_only=True,
+        allow_null=True
+    )
+
+    receiver_account_number = serializers.CharField(
+        source="receiver.account_number",
+        read_only=True,
+        allow_null=True
+    )
+
+    class Meta:
+        model = Transaction
+        fields = [
+            "transaction_id",
+            "sender_account_number",
+            "receiver_account_number",
+            "amount",
+            "transaction_type",
+            "status",
+            "description",
+            "created_at"
+        ]
